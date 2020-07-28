@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, Menu, globalShortcut } = require("electron");
 
 // setting environment variable
 process.env.NODE_ENV = "development";
@@ -7,6 +7,7 @@ const isDev = process.env.NODE_ENV !== "production" ? true : false;
 const isMac = process.platform === "darwin" ? true : false;
 
 let mainWindow;
+let aboutWindow;
 
 function createMainWindow() {
   mainWindow = new BrowserWindow({
@@ -15,13 +16,85 @@ function createMainWindow() {
     height: 600,
     icon: `${__dirname}/assets/icons/Icon_256x256.png`,
     resizable: isDev,
+    backgroundColor: "white",
+  });
+  mainWindow.loadFile(`${__dirname}/app/index.html`);
+}
+
+function createAboutWindow() {
+  aboutWindow = new BrowserWindow({
+    title: "About ImageShrink",
+    width: 300,
+    height: 300,
+    icon: `${__dirname}/assets/icons/Icon_256x256.png`,
+    resizable: false,
+    backgroundColor: "white",
   });
 
   //   mainWindow.loadURL(`file://${__dirname}/app/index.html`);
-  mainWindow.loadFile("./app/index.html");
+  aboutWindow.loadFile(`${__dirname}/app/about.html`);
+  aboutWindow.setMenu(null);
 }
 
-app.on("ready", createMainWindow);
+app.on("ready", () => {
+  createMainWindow();
+  const mainMenu = Menu.buildFromTemplate(menu);
+  Menu.setApplicationMenu(mainMenu);
+
+  mainWindow.on("closed", () => (mainWindow = null));
+
+  //   globalShortcut.register("CmdOrCtrl+R", () => mainWindow.reload());
+  //   globalShortcut.register(isMac ? "Command+Alt+I" : "Ctrl+Shift+I", () =>
+  //     mainWindow.toggleDevTools()
+  //   );
+});
+
+const menu = [
+  ...(isMac
+    ? [
+        {
+          label: app.name,
+          submenu: [
+            {
+              label: "About",
+              click: createAboutWindow,
+            },
+          ],
+        },
+      ]
+    : []), // check to see if this is a mac before assigning file system
+
+  {
+    role: "fileMenu",
+  },
+
+  ...(isDev
+    ? [
+        {
+          label: "Developer",
+          submenu: [
+            { role: "reload" },
+            { role: "forcereload" },
+            { type: "separator" },
+            { role: "toggledevtools" },
+          ],
+        },
+      ]
+    : []),
+  ...(!isMac
+    ? [
+        {
+          label: "Help",
+          submenu: [
+            {
+              label: "About",
+              click: createAboutWindow,
+            },
+          ],
+        },
+      ]
+    : []),
+];
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
