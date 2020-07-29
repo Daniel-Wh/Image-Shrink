@@ -13,9 +13,10 @@ const imageinminMozjpeg = require("imagemin-mozjpeg");
 const imageminPngquant = require("imagemin-pngquant");
 const slash = require("slash");
 const imageminMozjpeg = require("imagemin-mozjpeg");
+const log = require("electron-log");
 
 // setting environment variable
-process.env.NODE_ENV = "development";
+process.env.NODE_ENV = "production";
 
 const isDev = process.env.NODE_ENV !== "production" ? true : false;
 const isMac = process.platform === "darwin" ? true : false;
@@ -132,10 +133,13 @@ async function shrinkImage({ imgPath, quality, dest }) {
         }),
       ],
     });
-    console.log(files);
     shell.openPath(dest);
+    log.info(files);
+
+    mainWindow.webContents.send("image:done");
   } catch (err) {
     console.log(err);
+    log.error(err);
   }
 }
 
