@@ -13,5 +13,5 @@ lin: npm run package-linux <br>
 
 a new folder will appear when the app is complete name release-builds. The executable application will be in that folder.
 
-## How to use
+## How to use ![walkthrough](https://github.com/Daniel-Wh/Image-Shrink/blob/master/imageShrinkWalkthrough.gif)
 
